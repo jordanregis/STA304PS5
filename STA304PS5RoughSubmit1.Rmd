@@ -6,7 +6,7 @@ date: "12/9/2020"
 output: pdf_document
 ---
 
-```{r}
+```{r, include = FALSE}
 library(tidyverse)
 library(MASS)
 library(boot)
