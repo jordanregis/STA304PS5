@@ -298,7 +298,7 @@ Due to Spotify's creation of the API data, using secondary datasets to further s
 # 6 Appendix
 
 Code for this study can be found at:
-
+https://github.com/jordanregis/STA304PS5/blob/main/SpotifyAppendix.Rmd 
 
 # 7 References
 
