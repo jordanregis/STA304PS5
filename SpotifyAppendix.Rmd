@@ -1,0 +1,201 @@
+---
+title: "SpotifyAppendix"
+author: "Timothy Regis"
+date: "December 22, 2020"
+output: pdf_document
+---
+
+```{r, include = FALSE}
+# Loading Required Packages, use install.packages() if needed
+library(tidyverse)
+library(MASS)
+library(boot)
+library(jtools)
+library(kableExtra)
+```
+
+# Data
+
+```{r, include=FALSE}
+# Read in the Kaggle Dataset
+rawdata <- read_csv("spotifydata.csv")
+```
+
+```{r, include=FALSE}
+# Filter Dataset for interested variables and remove songs with popularity scores of 0, and speechiness levels greater than or equal to 0.66. The reasoning for these removals is explained in the Data Discussion section of the paper.
+data <- rawdata %>%
+  dplyr::select(artists,
+                name,
+                popularity,
+                danceability,
+                valence,
+                energy, 
+                instrumentalness, 
+                speechiness, 
+                tempo,
+                loudness) %>%
+  filter(popularity > 0,
+         speechiness < 0.66)
+```
+
+
+```{r, echo=FALSE, fig.width=5, fig.height=3}
+# Plot Graph of Song Popularity
+data %>%
+  ggplot(aes(x = popularity)) + 
+  geom_density(color = "firebrick1", size = 1) + 
+  labs(title = "Graph 1: Distribution of Song Popularity", 
+       x = "Popularity Score",
+       y = "Density"
+       ) + 
+  theme_minimal()
+```
+
+```{r, include=FALSE}
+# Compute mean and variance of popularity scores, used in determining equal dispersion conditions
+mean(data$popularity)
+sd(data$popularity)
+```
+
+
+```{r, echo=FALSE, fig.width=5, fig.height=3}
+# Plot Graph of Song Valence Distribution
+data %>%
+  ggplot(aes(x = valence)) + 
+  geom_density(color = "orange1", size = 1) + 
+  labs(title = "Graph 2: Distribution of Valence Scores", 
+       x = "Valence Score",
+       y = "Density"
+       ) + 
+  theme_minimal()
+```
+
+
+
+
+
+
+```{r, echo=FALSE, fig.width=5, fig.height=3}
+# Plot Graph of Song Energy Distribution
+data %>%
+  ggplot(aes(x = energy)) + 
+  geom_density(color = "orange1", size = 1) + 
+  labs(title = "Graph 3: Distribution of Energy Levels", 
+       x = "Energy Level",
+       y = "Density"
+       ) + 
+  theme_minimal()
+```
+
+
+
+```{r, echo=FALSE, fig.width=5, fig.height=3}
+# Plot Graph of Danceability Score Distribution
+data %>%
+  ggplot(aes(x = danceability)) + 
+  geom_density(color = "mediumblue", size = 1) + 
+  labs(title = "Graph 4: Distribution of Danceability Scores", 
+       x = "Danceability Score",
+       y = "Density"
+       ) + 
+  theme_minimal()
+```
+
+
+```{r, echo=FALSE, fig.width=5, fig.height=3}
+# Plot Graph of Speechiness Level Distribution
+data %>%
+  ggplot(aes(x = speechiness)) + 
+  geom_density(color = "mediumblue", size = 1) + 
+  labs(title = "Graph 5: Distribution of Speechiness Levels", 
+       x = "Speechiness Level",
+       y = "Density"
+       ) + 
+  theme_minimal()
+```
+
+
+
+```{r, echo=FALSE, fig.width=5, fig.height=3}
+# Plot Graph of Song Tempo Distribution
+data %>%
+  ggplot(aes(x = tempo)) + 
+  geom_density(color = "green4", size = 1) + 
+  labs(title = "Graph 6: Distribution of Song Tempos", 
+       x = "Tempo",
+       y = "Density"
+       ) + 
+  theme_minimal()
+```
+
+# Model Development
+
+```{r, include=FALSE}
+# Create regression model used for analysis
+model <- glm.nb(popularity ~ danceability + speechiness + energy + valence, data = data)
+```
+
+# Model Results
+
+```{r, echo=FALSE, warning=FALSE}
+# Display Organized Table of Summary Statistics from Regression Model
+broom::tidy(model) %>% 
+  kable(digits = 2)
+```
+
+
+```{r, include=FALSE}
+# Display Raw, but more detailed Summary Statistics of Regression Model
+summary(model)
+```
+
+# Model Validation
+
+```{r, include=FALSE}
+# Create two seperate datasets, identical to the original, for MSPE and MSRes testing
+spotifydata_MSPE <- data
+spotifydata_MSRES <- data
+```
+
+```{r, include=FALSE}
+# Create MSPE and MSRes Datasets, MSPE dataset featuring 40,000 random observations from the original data, MSRes dataset featuring the original data without these 40,000 observations
+set.seed(31)
+glm_spotifydata_MSPE <- sample_n(spotifydata_MSPE, 40000)
+glm_spotifydata_MSRES <- spotifydata_MSRES %>% 
+  anti_join(glm_spotifydata_MSPE)
+```
+
+```{r, include=FALSE}
+# Create an identical regression model for the MSPE and MSRes datasets
+testmodelMSPE <- glm.nb(popularity ~ danceability + speechiness + energy + valence, data = glm_spotifydata_MSPE)
+
+testmodelMSRES <- glm.nb(popularity ~ danceability + speechiness + energy + valence , data = glm_spotifydata_MSRES)
+```
+
+```{r, include=FALSE}
+# Compute the MSPE and MSRes of the two models
+mspe <- sum(resid(testmodelMSPE)^2)/length(spotifydata_MSPE$popularity)
+
+msres <- sum(resid(testmodelMSRES)^2)/(length(spotifydata_MSRES$popularity))
+
+mspe
+msres
+```
+
+```{r, echo=FALSE}
+# Plot the Cook's Distance of Observations in the data
+plot(model, which = 4, id.n = 3)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
