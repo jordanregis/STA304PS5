@@ -7,10 +7,10 @@ Inputs contain the raw data used for the analysis.
 The primary dataset used for this analysis was provided by a user on Kaggle: https://www.kaggle.com/yamaerenay/spotify-dataset-19212020-160k-tracks. To download the dataset used for this paper; go to the link and download the "data.csv" file under the Data Explorer section, next, extract the csv file and place this file into your working directory.
 
 Outputs contain both the raw RMarkdown file of the paper, as well as the pdf copy. 
-
-- 
-- 
+These Are:
+- SpotifyPaper.rmd
+- SpotifyPaper.pdf
 
 Lastly, Scripts contain the R code used that took in the inputs and produced the outputs.
-
-- 
+This is:
+- SpotifyAppendix.rmd
