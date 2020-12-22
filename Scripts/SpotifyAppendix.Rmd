@@ -5,6 +5,8 @@ date: "December 22, 2020"
 output: pdf_document
 ---
 
+This Code is used for taking in the Spotify Data and creating the regression model used in the paper. It begins by reading and cleaning the Spotify Dataset from Kaggle and then displays this cleaned data. Next, the code moves to create the generalized linear regression model used for analysis and plots its results, as well as runs some validation tests on the model. 
+
 ```{r, include = FALSE}
 # Loading Required Packages, use install.packages() if needed
 library(tidyverse)
